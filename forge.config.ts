@@ -7,7 +7,9 @@ import { MakerZIP } from "@electron-forge/maker-zip";
 import { FusesPlugin } from "@electron-forge/plugin-fuses";
 import { VitePlugin } from "@electron-forge/plugin-vite";
 import { PublisherGithub } from "@electron-forge/publisher-github";
-import type { ForgeConfig } from "@electron-forge/shared-types";
+import type { ForgeConfig, ForgeHookFn } from "@electron-forge/shared-types";
+import { execSync } from "node:child_process";
+import { join } from "node:path";
 import { FuseV1Options, FuseVersion } from "@electron/fuses";
 
 // import { globSync } from "node:fs";
@@ -140,6 +142,19 @@ const config: ForgeConfig = {
         "Mutiny needs camera access for video calls.",
       NSScreenCaptureUsageDescription:
         "Mutiny needs screen access for screen sharing.",
+    },
+  },
+  hooks: {
+    postPackage: async (_config, options) => {
+      if (options.platform === "darwin") {
+        const appPath = join(options.outputPaths[0], `${STRINGS.name}.app`);
+        const entitlements = join(__dirname, "entitlements.mac.plist");
+        console.log(`Ad-hoc signing ${appPath} with entitlements...`);
+        execSync(
+          `codesign --deep --force --sign - --entitlements "${entitlements}" "${appPath}"`,
+        );
+        console.log("Signed successfully.");
+      }
     },
   },
   rebuildConfig: {},
