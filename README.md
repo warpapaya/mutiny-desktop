@@ -1,23 +1,23 @@
 <div align="center">
 <h1>
-  Stoat for Desktop
+  Mutiny Desktop
   
-  [![Stars](https://img.shields.io/github/stars/stoatchat/for-desktop?style=flat-square&logoColor=white)](https://github.com/stoatchat/for-desktop/stargazers)
-  [![Forks](https://img.shields.io/github/forks/stoatchat/for-desktop?style=flat-square&logoColor=white)](https://github.com/stoatchat/for-desktop/network/members)
-  [![Pull Requests](https://img.shields.io/github/issues-pr/stoatchat/for-desktop?style=flat-square&logoColor=white)](https://github.com/stoatchat/for-desktop/pulls)
-  [![Issues](https://img.shields.io/github/issues/stoatchat/for-desktop?style=flat-square&logoColor=white)](https://github.com/stoatchat/for-desktop/issues)
-  [![Contributors](https://img.shields.io/github/contributors/stoatchat/for-desktop?style=flat-square&logoColor=white)](https://github.com/stoatchat/for-desktop/graphs/contributors)
-  [![License](https://img.shields.io/github/license/stoatchat/for-desktop?style=flat-square&logoColor=white)](https://github.com/stoatchat/for-desktop/blob/main/LICENSE)
+  [![Stars](https://img.shields.io/github/stars/warpapaya/mutiny-desktop?style=flat-square&logoColor=white)](https://github.com/warpapaya/mutiny-desktop/stargazers)
+  [![Forks](https://img.shields.io/github/forks/warpapaya/mutiny-desktop?style=flat-square&logoColor=white)](https://github.com/warpapaya/mutiny-desktop/network/members)
+  [![Pull Requests](https://img.shields.io/github/issues-pr/warpapaya/mutiny-desktop?style=flat-square&logoColor=white)](https://github.com/warpapaya/mutiny-desktop/pulls)
+  [![Issues](https://img.shields.io/github/issues/warpapaya/mutiny-desktop?style=flat-square&logoColor=white)](https://github.com/warpapaya/mutiny-desktop/issues)
+  [![Contributors](https://img.shields.io/github/contributors/warpapaya/mutiny-desktop?style=flat-square&logoColor=white)](https://github.com/warpapaya/mutiny-desktop/graphs/contributors)
+  [![License](https://img.shields.io/github/license/warpapaya/mutiny-desktop?style=flat-square&logoColor=white)](https://github.com/warpapaya/mutiny-desktop/blob/main/LICENSE)
 </h1>
-Application for Windows, macOS, and Linux.
+Desktop application for Windows, macOS, and Linux.
 </div>
 <br/>
 
+## Usage
+
+Download the latest release from the [Releases](https://github.com/warpapaya/mutiny-desktop/releases) page, or build from source below.
+
 ## Development Guide
-
-_Contribution guidelines for Desktop app TBA!_
-
-<!-- Before contributing, make yourself familiar with [our contribution guidelines](https://developers.revolt.chat/contrib.html), the [code style guidelines](./GUIDELINES.md), and the [technical documentation for this project](https://revoltchat.github.io/frontend/). -->
 
 Before getting started, you'll want to install:
 
@@ -29,8 +29,8 @@ Then proceed to setup:
 
 ```bash
 # clone the repository
-git clone --recursive https://github.com/stoatchat/for-desktop stoat-for-desktop
-cd stoat-for-desktop
+git clone --recursive https://github.com/warpapaya/mutiny-desktop
+cd mutiny-desktop
 
 # install all packages
 pnpm i --frozen-lockfile
@@ -60,17 +60,15 @@ pnpm package
 pnpm run:nix
 # ... as before:
 pnpm run:nix --force-server=http://localhost:5173
-# a better solution would be telling
-# Electron Forge where system Electron is
 ```
 
-### Pulling in Stoat's assets
+### Pulling in brand assets
 
-If you want to pull in Stoat brand assets after pulling, run the following:
+If you want to pull in Mutiny brand assets after pulling, run the following:
 
 ```bash
 # update the assets
 git -c submodule."assets".update=checkout submodule update --init assets
 ```
 
-Currently, this is required to build, any forks are expected to provide their own assets.
+Currently, this is required to build. Any forks are expected to provide their own assets.
