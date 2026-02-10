@@ -1,6 +1,6 @@
 import { updateElectronApp } from "update-electron-app";
 
-import { BrowserWindow, app, shell } from "electron";
+import { BrowserWindow, app, session, shell, systemPreferences } from "electron";
 import started from "electron-squirrel-startup";
 
 import { autoLaunch } from "./native/autoLaunch";
@@ -30,6 +30,23 @@ if (acquiredLock) {
 
   // create and configure the app when electron is ready
   app.on("ready", () => {
+    // Grant media permissions for voice chat (microphone, camera, screen share)
+    session.defaultSession.setPermissionRequestHandler((_webContents, permission, callback) => {
+      const allowed = ["media", "mediaKeySystem", "display-capture", "notifications"];
+      callback(allowed.includes(permission));
+    });
+
+    session.defaultSession.setPermissionCheckHandler((_webContents, permission) => {
+      const allowed = ["media", "mediaKeySystem", "display-capture", "notifications"];
+      return allowed.includes(permission);
+    });
+
+    // Request microphone access on macOS
+    if (process.platform === "darwin") {
+      systemPreferences.askForMediaAccess("microphone");
+      systemPreferences.askForMediaAccess("camera");
+    }
+
     // enable auto start on Windows and MacOS
     if (config.firstLaunch) {
       if (process.platform === "win32" || process.platform === "darwin") {
