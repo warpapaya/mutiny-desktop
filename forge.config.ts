@@ -132,7 +132,6 @@ const config: ForgeConfig = {
     //   // include all the asset files
     //   ...globSync(ASSET_DIR + "/**/*"),
     // ],
-    osxSign: {},
     darwinDarkModeSupport: true,
     extendInfo: {
       NSMicrophoneUsageDescription:
