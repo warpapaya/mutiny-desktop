@@ -132,6 +132,16 @@ const config: ForgeConfig = {
     //   // include all the asset files
     //   ...globSync(ASSET_DIR + "/**/*"),
     // ],
+    osxSign: {},
+    darwinDarkModeSupport: true,
+    extendInfo: {
+      NSMicrophoneUsageDescription:
+        "Mutiny needs microphone access for voice chat.",
+      NSCameraUsageDescription:
+        "Mutiny needs camera access for video calls.",
+      NSScreenCaptureUsageDescription:
+        "Mutiny needs screen access for screen sharing.",
+    },
   },
   rebuildConfig: {},
   makers,
