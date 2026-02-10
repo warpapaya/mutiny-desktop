@@ -21,7 +21,7 @@ export let mainWindow: BrowserWindow;
 export const BUILD_URL = new URL(
   app.commandLine.hasSwitch("force-server")
     ? app.commandLine.getSwitchValue("force-server")
-    : /*MAIN_WINDOW_VITE_DEV_SERVER_URL ??*/ "https://mutinyapp.gg",
+    : /*MAIN_WINDOW_VITE_DEV_SERVER_URL ??*/ "https://app.mutinyapp.gg",
 );
 
 // internal window state
@@ -64,6 +64,16 @@ export function createMainWindow() {
 
   // load the entrypoint
   mainWindow.loadURL(BUILD_URL.toString());
+
+  mainWindow.webContents.on("did-fail-load", (_e: any, code: number, desc: string, url: string) => {
+    console.error(`[LOAD FAIL] ${url} — ${code}: ${desc}`);
+  });
+  mainWindow.webContents.on("did-finish-load", () => {
+    console.log("[LOAD OK] Page finished loading");
+  });
+  mainWindow.webContents.on("console-message", (_e: any, _level: number, message: string) => {
+    console.log(`[RENDERER] ${message}`);
+  });
 
   // minimise window to tray
   mainWindow.on("close", (event) => {
