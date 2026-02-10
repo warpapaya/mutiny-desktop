@@ -13,10 +13,10 @@ import { FuseV1Options, FuseVersion } from "@electron/fuses";
 // import { globSync } from "node:fs";
 
 const STRINGS = {
-  author: "Revolt Platforms LTD",
-  name: "Stoat",
-  execName: "stoat-desktop",
-  description: "Open source user-first chat platform.",
+  author: "Mutiny",
+  name: "Mutiny",
+  execName: "mutiny-desktop",
+  description: "Mutiny desktop chat client.",
 };
 
 const ASSET_DIR = "assets/desktop";
@@ -29,13 +29,13 @@ const makers: ForgeConfig["makers"] = [
     name: STRINGS.name,
     authors: STRINGS.author,
     // todo: hoist this
-    iconUrl: `https://stoat.chat/app/assets/icon-DUSNE-Pb.ico`,
+    iconUrl: `https://mutinyapp.gg/assets/icon.ico`,
     // todo: loadingGif
     setupIcon: `${ASSET_DIR}/icon.ico`,
     description: STRINGS.description,
     exe: `${STRINGS.execName}.exe`,
     setupExe: `${STRINGS.execName}-setup.exe`,
-    copyright: "Copyright (C) 2025 Revolt Platforms LTD",
+    copyright: "Copyright (C) 2025 Mutiny",
   }),
   new MakerZIP({}),
 ];
@@ -54,7 +54,7 @@ if (!process.env.PLATFORM) {
     // this is just for testing purposes
     new MakerFlatpak({
       options: {
-        id: "chat.stoat.stoat-desktop",
+        id: "gg.mutinyapp.mutiny-desktop",
         description: STRINGS.description,
         productName: STRINGS.name,
         productDescription: STRINGS.description,
@@ -169,8 +169,8 @@ const config: ForgeConfig = {
   publishers: [
     new PublisherGithub({
       repository: {
-        owner: "stoatchat",
-        name: "for-desktop",
+        owner: "warpapaya",
+        name: "mutiny-desktop",
       },
     }),
   ],

@@ -1,17 +1,17 @@
 {
-  "name": "stoat-desktop",
-  "productName": "stoat-desktop",
+  "name": "mutiny-desktop",
+  "productName": "mutiny-desktop",
   "version": "1.1.12",
   "main": ".vite/build/main.js",
-  "repository": "stoatchat/desktop",
+  "repository": "warpapaya/mutiny-desktop",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
-    "install:flatpak": "flatpak --user install out/make/flatpak/x86_64/chat.stoat.stoat-desktop_stable_x86_64.flatpak",
-    "run:flatpak": "flatpak run --socket=session-bus chat.stoat.stoat-desktop",
+    "install:flatpak": "flatpak --user install out/make/flatpak/x86_64/gg.mutinyapp.mutiny-desktop_stable_x86_64.flatpak",
+    "run:flatpak": "flatpak run --socket=session-bus gg.mutinyapp.mutiny-desktop",
     "run:nix": "/usr/bin/env electron-nix ."
   },
   "keywords": [],
