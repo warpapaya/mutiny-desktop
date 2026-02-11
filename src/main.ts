@@ -25,6 +25,35 @@ if (!config.hardwareAcceleration) {
 const acquiredLock = app.requestSingleInstanceLock();
 
 if (acquiredLock) {
+  // Register protocol handler for mutiny:// deep links
+  if (process.defaultApp) {
+    if (process.argv.length >= 2) {
+      app.setAsDefaultProtocolClient('mutiny', process.execPath, [process.argv[1]]);
+    }
+  } else {
+    app.setAsDefaultProtocolClient('mutiny');
+  }
+
+  // Handle protocol URLs on macOS
+  app.on('open-url', (event, url) => {
+    event.preventDefault();
+    if (mainWindow) {
+      mainWindow.show();
+      mainWindow.focus();
+      mainWindow.webContents.send('protocol-url', url);
+    }
+  });
+
+  // Handle protocol URLs on Windows/Linux
+  const protocolUrl = process.argv.find(arg => arg.startsWith('mutiny://'));
+  if (protocolUrl) {
+    setTimeout(() => {
+      if (mainWindow) {
+        mainWindow.webContents.send('protocol-url', protocolUrl);
+      }
+    }, 1000);
+  }
+
   // start auto update logic
   updateElectronApp();
 

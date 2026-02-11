@@ -142,6 +142,12 @@ const config: ForgeConfig = {
         "Mutiny needs camera access for video calls.",
       NSScreenCaptureUsageDescription:
         "Mutiny needs screen access for screen sharing.",
+      CFBundleURLTypes: [
+        {
+          CFBundleURLName: "Mutiny Protocol",
+          CFBundleURLSchemes: ["mutiny"],
+        },
+      ],
     },
   },
   hooks: {
