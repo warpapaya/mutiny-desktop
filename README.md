@@ -1,74 +1,126 @@
 <div align="center">
-<h1>
-  Mutiny Desktop
-  
-  [![Stars](https://img.shields.io/github/stars/warpapaya/mutiny-desktop?style=flat-square&logoColor=white)](https://github.com/warpapaya/mutiny-desktop/stargazers)
-  [![Forks](https://img.shields.io/github/forks/warpapaya/mutiny-desktop?style=flat-square&logoColor=white)](https://github.com/warpapaya/mutiny-desktop/network/members)
-  [![Pull Requests](https://img.shields.io/github/issues-pr/warpapaya/mutiny-desktop?style=flat-square&logoColor=white)](https://github.com/warpapaya/mutiny-desktop/pulls)
-  [![Issues](https://img.shields.io/github/issues/warpapaya/mutiny-desktop?style=flat-square&logoColor=white)](https://github.com/warpapaya/mutiny-desktop/issues)
-  [![Contributors](https://img.shields.io/github/contributors/warpapaya/mutiny-desktop?style=flat-square&logoColor=white)](https://github.com/warpapaya/mutiny-desktop/graphs/contributors)
-  [![License](https://img.shields.io/github/license/warpapaya/mutiny-desktop?style=flat-square&logoColor=white)](https://github.com/warpapaya/mutiny-desktop/blob/main/LICENSE)
-</h1>
-Desktop application for Windows, macOS, and Linux.
+
+<img src="assets/icon.png" width="120" alt="Mutiny Logo" />
+
+# Mutiny Desktop
+
+**A modern, open-source chat platform — built for communities that want independence.**
+
+[![Release](https://img.shields.io/github/v/release/warpapaya/mutiny-desktop?style=flat-square&color=7B2FBE)](https://github.com/warpapaya/mutiny-desktop/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/warpapaya/mutiny-desktop/total?style=flat-square&color=2EC4B6)](https://github.com/warpapaya/mutiny-desktop/releases)
+[![License](https://img.shields.io/github/license/warpapaya/mutiny-desktop?style=flat-square)](https://github.com/warpapaya/mutiny-desktop/blob/main/LICENSE)
+
+[Download](#download) • [Features](#features) • [Development](#development) • [Contributing](#contributing)
+
 </div>
-<br/>
 
-## Usage
+---
 
-Download the latest release from the [Releases](https://github.com/warpapaya/mutiny-desktop/releases) page, or build from source below.
+## Download
 
-## Development Guide
+Get the latest version for your platform:
 
-Before getting started, you'll want to install:
+| Platform | Architecture | Link |
+|----------|-------------|------|
+| **macOS** | Apple Silicon (M1+) | [Download .zip](https://github.com/warpapaya/mutiny-desktop/releases/latest/download/Mutiny-darwin-arm64.zip) |
+| **Windows** | x64 | [Download Installer](https://github.com/warpapaya/mutiny-desktop/releases/latest/download/Mutiny-Setup.exe) |
 
-- Git
-- Node.js
-- pnpm (run `corepack enable`)
+Or visit the [Releases](https://github.com/warpapaya/mutiny-desktop/releases) page for all available builds.
 
-Then proceed to setup:
+> **Auto-updates included** — once installed, Mutiny updates itself automatically in the background.
+
+## Features
+
+🎨 **Deep Purple Theme** — OLED-friendly dark interface designed for long sessions  
+🎙️ **Voice Channels** — Crystal-clear voice powered by LiveKit  
+🖥️ **Screen Sharing** — Share your screen with your community  
+🔔 **Native Notifications** — System-level alerts with sound effects  
+🔄 **Auto-Updates** — Always running the latest version  
+🔒 **Self-Hostable** — Your data, your server, your rules  
+📱 **Cross-Platform** — macOS, Windows, and web
+
+## Screenshots
+
+<div align="center">
+<i>Coming soon</i>
+</div>
+
+## Development
+
+### Prerequisites
+
+- [Git](https://git-scm.com/)
+- [Node.js](https://nodejs.org/) (v20+)
+- [pnpm](https://pnpm.io/) (`corepack enable`)
+
+### Quick Start
 
 ```bash
-# clone the repository
+# Clone with submodules
 git clone --recursive https://github.com/warpapaya/mutiny-desktop
 cd mutiny-desktop
 
-# install all packages
+# Install dependencies
 pnpm i --frozen-lockfile
 
-# start the application
+# Start in development mode
 pnpm start
-# ... or build the bundle
-pnpm package
-# ... or build all distributables
+
+# Build distributable
 pnpm make
 ```
 
-Various useful commands for development testing:
+### Development Commands
 
 ```bash
-# connect to the development server
+# Connect to a local dev server
 pnpm start -- --force-server http://localhost:5173
 
-# test the flatpak (after `make`)
-pnpm install:flatpak
-pnpm run:flatpak
-# ... also connect to dev server like so:
-pnpm run:flatpak --force-server http://localhost:5173
-
-# Nix-specific instructions for testing
+# Package without creating installers
 pnpm package
-pnpm run:nix
-# ... as before:
-pnpm run:nix --force-server=http://localhost:5173
-```
 
-### Pulling in brand assets
-
-If you want to pull in Mutiny brand assets after pulling, run the following:
-
-```bash
-# update the assets
+# Update brand assets
 git -c submodule."assets".update=checkout submodule update --init assets
 ```
 
-Currently, this is required to build. Any forks are expected to provide their own assets.
+> **Note:** Brand assets are required to build. Forks should provide their own.
+
+## Architecture
+
+Mutiny Desktop is an [Electron](https://www.electronjs.org/) wrapper around the [Mutiny web client](https://github.com/warpapaya/mutiny), built with [Electron Forge](https://www.electronforge.io/).
+
+```
+src/
+├── main.ts           # Electron main process
+├── renderer.ts       # Preload bridge
+└── native/
+    ├── window.ts     # Window management
+    ├── autoLaunch.ts # Launch on startup
+    ├── badges.ts     # Dock/taskbar badges
+    └── tray.ts       # System tray
+```
+
+## Contributing
+
+Contributions are welcome! Please open an issue first to discuss what you'd like to change.
+
+1. Fork the repo
+2. Create your feature branch (`git checkout -b feat/awesome-feature`)
+3. Commit your changes (`git commit -m 'feat: add awesome feature'`)
+4. Push to the branch (`git push origin feat/awesome-feature`)
+5. Open a Pull Request
+
+## Community
+
+- 🌐 **Web:** [mutinyapp.gg](https://mutinyapp.gg)
+- 💬 **Chat:** [gamers.petieclark.com](https://gamers.petieclark.com)
+
+## License
+
+This project is licensed under the terms included in the [LICENSE](LICENSE) file.
+
+---
+
+<div align="center">
+<sub>Built with ❤️ by the Mutiny community</sub>
+</div>
