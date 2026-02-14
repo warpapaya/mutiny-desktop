@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to release (e.g., v1.1.14)'
+        description: 'Version to release (e.g., v1.2.0)'
         required: true
         type: string
 
@@ -15,14 +15,12 @@ jobs:
   build:
     name: Build ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     
     strategy:
       fail-fast: false
       matrix:
         include:
-          - os: macos-13
-            platform: darwin
-            arch: x64
           - os: macos-14
             platform: darwin
             arch: arm64
@@ -56,8 +54,6 @@ jobs:
       - name: Build and package
         run: pnpm run make
         env:
-          # Disable code signing on macOS for now (requires Apple Developer cert)
-          # To enable: add CSC_LINK and CSC_KEY_PASSWORD secrets
           CSC_IDENTITY_AUTO_DISCOVERY: false
       
       - name: Upload artifacts
@@ -69,14 +65,11 @@ jobs:
             out/make/**/*.zip
             out/make/**/*.exe
             out/make/**/*.nupkg
-            out/make/**/*.deb
-            out/make/**/*.rpm
-            out/make/**/*.AppImage
           if-no-files-found: warn
           retention-days: 5
 
-  publish:
-    name: Publish Release
+  release:
+    name: Create Release
     needs: build
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
@@ -85,34 +78,48 @@ jobs:
       contents: write
     
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Checkout assets submodule
-        run: git -c submodule."assets".update=checkout submodule update --init assets
-      
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
       
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - name: List artifacts
+        run: find artifacts -type f | head -50
+      
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Collect release files
+        run: |
+          mkdir -p release
+          find artifacts -name "*.zip" -exec cp {} release/ \;
+          find artifacts -name "*.dmg" -exec cp {} release/ \;
+          find artifacts -name "*.exe" -exec cp {} release/ \;
+          find artifacts -name "*.nupkg" -exec cp {} release/ \;
+          ls -la release/
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          run_install: false
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'pnpm'
-      
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      
-      - name: Publish to GitHub Releases
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Mutiny ${{ steps.version.outputs.tag }}
+          draft: false
+          prerelease: false
+          files: release/*
+          body: |
+            ## Mutiny Desktop ${{ steps.version.outputs.tag }}
+            
+            ### Downloads
+            - **macOS (Apple Silicon):** `.zip` file — extract and drag to Applications
+            - **Windows:** `.exe` installer — run to install
+            
+            ### Auto-Updates
+            Once installed, future updates are automatic.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: pnpm run publish
