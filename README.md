@@ -1,8 +1,6 @@
 <div align="center">
 
-<img src="assets/icon.png" width="120" alt="Mutiny Logo" />
-
-# Mutiny Desktop
+# ⚔️ Mutiny Desktop
 
 **A modern, open-source chat platform — built for communities that want independence.**
 
