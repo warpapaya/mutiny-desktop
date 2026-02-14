@@ -1,6 +1,6 @@
 import { updateElectronApp } from "update-electron-app";
 
-import { BrowserWindow, app, session, shell, systemPreferences } from "electron";
+import { BrowserWindow, app, desktopCapturer, session, shell, systemPreferences } from "electron";
 import started from "electron-squirrel-startup";
 
 import { autoLaunch } from "./native/autoLaunch";
@@ -70,22 +70,25 @@ if (acquiredLock) {
       return allowed.includes(permission);
     });
 
-    // Handle screen sharing requests (required for Electron 24+ on all platforms)
-    session.defaultSession.setDisplayMediaRequestHandler((request, callback) => {
-      const { desktopCapturer } = require('electron');
-      
-      desktopCapturer.getSources({ types: ['screen', 'window'] }).then((sources) => {
-        // Grant access to the first available screen/window
-        // In production, you might want to show a picker UI
+    // Handle screen sharing requests (required for Electron 17+ on all platforms)
+    session.defaultSession.setDisplayMediaRequestHandler(async (_request, callback) => {
+      try {
+        const sources = await desktopCapturer.getSources({
+          types: ['screen', 'window'],
+          thumbnailSize: { width: 150, height: 150 },
+        });
+
         if (sources.length > 0) {
-          callback({ video: sources[0], audio: 'loopback' });
+          // Use the entire screen by default (first source is usually "Entire Screen")
+          const screen = sources.find(s => s.name === 'Entire Screen') || sources[0];
+          callback({ video: screen });
         } else {
           callback({});
         }
-      }).catch((err) => {
-        console.error('Error getting desktop capturer sources:', err);
+      } catch (err) {
+        console.error('[mutiny] Error getting desktop capturer sources:', err);
         callback({});
-      });
+      }
     });
 
     // Request microphone access on macOS
