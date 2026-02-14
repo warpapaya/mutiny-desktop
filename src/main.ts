@@ -70,10 +70,30 @@ if (acquiredLock) {
       return allowed.includes(permission);
     });
 
+    // Handle screen sharing requests (required for Electron 24+ on all platforms)
+    session.defaultSession.setDisplayMediaRequestHandler((request, callback) => {
+      const { desktopCapturer } = require('electron');
+      
+      desktopCapturer.getSources({ types: ['screen', 'window'] }).then((sources) => {
+        // Grant access to the first available screen/window
+        // In production, you might want to show a picker UI
+        if (sources.length > 0) {
+          callback({ video: sources[0], audio: 'loopback' });
+        } else {
+          callback({});
+        }
+      }).catch((err) => {
+        console.error('Error getting desktop capturer sources:', err);
+        callback({});
+      });
+    });
+
     // Request microphone access on macOS
     if (process.platform === "darwin") {
       systemPreferences.askForMediaAccess("microphone");
       systemPreferences.askForMediaAccess("camera");
+      // Also request screen recording permission on macOS
+      systemPreferences.getMediaAccessStatus("screen");
     }
 
     // enable auto start on Windows and MacOS
