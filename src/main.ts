@@ -1,11 +1,12 @@
 import { updateElectronApp } from "update-electron-app";
 
-import { BrowserWindow, app, desktopCapturer, session, shell, systemPreferences } from "electron";
+import { BrowserWindow, app, session, shell, systemPreferences } from "electron";
 import started from "electron-squirrel-startup";
 
 import { autoLaunch } from "./native/autoLaunch";
 import { config } from "./native/config";
 import { initDiscordRpc } from "./native/discordRpc";
+import { showScreenPicker } from "./native/screenPicker";
 import { initTray } from "./native/tray";
 import { BUILD_URL, createMainWindow, mainWindow } from "./native/window";
 
@@ -70,23 +71,17 @@ if (acquiredLock) {
       return allowed.includes(permission);
     });
 
-    // Handle screen sharing requests (required for Electron 17+ on all platforms)
+    // Handle screen sharing requests with a visual picker
     session.defaultSession.setDisplayMediaRequestHandler(async (_request, callback) => {
       try {
-        const sources = await desktopCapturer.getSources({
-          types: ['screen', 'window'],
-          thumbnailSize: { width: 150, height: 150 },
-        });
-
-        if (sources.length > 0) {
-          // Use the entire screen by default (first source is usually "Entire Screen")
-          const screen = sources.find(s => s.name === 'Entire Screen') || sources[0];
-          callback({ video: screen });
+        const selected = await showScreenPicker();
+        if (selected) {
+          callback({ video: selected });
         } else {
           callback({});
         }
       } catch (err) {
-        console.error('[mutiny] Error getting desktop capturer sources:', err);
+        console.error('[mutiny] Error in screen picker:', err);
         callback({});
       }
     });
