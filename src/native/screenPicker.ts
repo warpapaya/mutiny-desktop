@@ -6,12 +6,14 @@ import { mainWindow } from "./window";
  * Returns null if the user cancels.
  */
 export async function showScreenPicker(): Promise<Electron.DesktopCapturerSource | null> {
+  console.log('[mutiny] showScreenPicker called, fetching sources...');
   const sources = await desktopCapturer.getSources({
     types: ["screen", "window"],
     thumbnailSize: { width: 320, height: 180 },
-    fetchWindowIcons: true,
+    fetchWindowIcons: process.platform !== "win32", // fetchWindowIcons is flaky on Windows
   });
 
+  console.log(`[mutiny] desktopCapturer returned ${sources.length} sources:`, sources.map(s => s.name));
   if (sources.length === 0) return null;
   // If only one source (single monitor, no windows), skip picker
   if (sources.length === 1) return sources[0];

@@ -73,8 +73,10 @@ if (acquiredLock) {
 
     // Handle screen sharing requests with a visual picker
     session.defaultSession.setDisplayMediaRequestHandler(async (_request, callback) => {
+      console.log('[mutiny] setDisplayMediaRequestHandler triggered');
       try {
         const selected = await showScreenPicker();
+        console.log('[mutiny] Screen picker result:', selected ? selected.id : 'cancelled');
         if (selected) {
           callback({ video: selected });
         } else {
