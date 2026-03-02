@@ -32,7 +32,10 @@ export async function showScreenPicker(): Promise<Electron.DesktopCapturerSource
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
-        sandbox: true,
+        // Note: sandbox: true is intentionally NOT set here.
+        // On Windows, sandboxed renderers loading data: URLs have unreliable
+        // console-message IPC — picker selections would silently never register.
+        // contextIsolation: true provides sufficient isolation without sandbox.
       },
     });
 

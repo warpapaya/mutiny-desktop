@@ -72,6 +72,9 @@ if (acquiredLock) {
     });
 
     // Handle screen sharing requests with a visual picker
+    // On Windows, use the OS native screen picker when available (added in Win10 22H2+).
+    // This bypasses our custom picker entirely on Windows, which avoids sandbox/data-URL
+    // IPC issues in the custom picker on Windows Chromium.
     session.defaultSession.setDisplayMediaRequestHandler(async (_request, callback) => {
       console.log('[mutiny] setDisplayMediaRequestHandler triggered');
       try {
@@ -86,6 +89,11 @@ if (acquiredLock) {
         console.error('[mutiny] Error in screen picker:', err);
         callback({});
       }
+    }, {
+      // useSystemPicker: let Windows use its native OS screen picker (Win10 22H2+ / Win11)
+      // When the system picker is used, the handler above is NOT called — the OS handles it.
+      // Falls back to our custom picker on older Windows or non-Windows platforms.
+      useSystemPicker: process.platform === 'win32',
     });
 
     // Request microphone access on macOS
