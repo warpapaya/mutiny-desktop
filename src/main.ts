@@ -5,6 +5,7 @@ import started from "electron-squirrel-startup";
 
 import { autoLaunch } from "./native/autoLaunch";
 import { config } from "./native/config";
+import { initControlServer } from "./native/controlServer";
 import { initDiscordRpc } from "./native/discordRpc";
 import { showScreenPicker } from "./native/screenPicker";
 import { initTray } from "./native/tray";
@@ -115,6 +116,7 @@ if (acquiredLock) {
     createMainWindow();
     initTray();
     initDiscordRpc();
+    initControlServer();
 
     // Windows specific fix for notifications
     if (process.platform === "win32") {
