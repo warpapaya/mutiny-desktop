@@ -114,6 +114,18 @@ export function createMainWindow() {
     }
   });
 
+  // enforce Content Security Policy
+  mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        "Content-Security-Policy": [
+          "default-src 'self' 'unsafe-inline' data: https://beta.revolt.chat https://*.revolt.chat; media-src 'self' blob: data: https:; connect-src 'self' wss: https:;",
+        ],
+      },
+    });
+  });
+
   // send the config
   mainWindow.webContents.on("did-finish-load", () => config.sync());
 
