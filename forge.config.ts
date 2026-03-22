@@ -97,12 +97,12 @@ if (!process.env.PLATFORM) {
         //     (size) =>
         //       [
         //         `assets/desktop/hicolor/${size}x${size}.png`,
-        //         `/app/share/icons/hicolor/${size}x${size}/apps/chat.stoat.stoat-desktop.png`,
+        //         `/app/share/icons/hicolor/${size}x${size}/apps/gg.mutinyapp.mutiny-desktop.png`,
         //       ] as [string, string],
         //   ),
         //   [
         //     `assets/desktop/icon.svg`,
-        //     `/app/share/icons/hicolor/scalable/apps/chat.stoat.stoat-desktop.svg`,
+        //     `/app/share/icons/hicolor/scalable/apps/gg.mutinyapp.mutiny-desktop.svg`,
         //   ] as [string, string],
         // ],
         files: [],
