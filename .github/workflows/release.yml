@@ -86,13 +86,19 @@ jobs:
       - name: List artifacts
         run: find artifacts -type f | head -50
 
-      - name: Collect release files
+      - name: Collect release files with stable names
         run: |
           mkdir -p release
+          # Copy originals (versioned names)
           find artifacts -name "*.zip" -exec cp {} release/ \;
           find artifacts -name "*.dmg" -exec cp {} release/ \;
           find artifacts -name "*.exe" -exec cp {} release/ \;
           find artifacts -name "*.nupkg" -exec cp {} release/ \;
+          # Create stable-named copies for /releases/latest/download/ URLs
+          # These names are referenced by mutinyapp.gg landing page
+          for f in release/Mutiny-darwin-arm64-*.zip; do [ -f "$f" ] && cp "$f" release/Mutiny-darwin-arm64.zip; done
+          for f in release/Mutiny-win32-x64-*.zip; do [ -f "$f" ] && cp "$f" release/Mutiny-win32-x64.zip; done
+          for f in release/mutiny-desktop-setup.exe; do [ -f "$f" ] && cp "$f" release/Mutiny-setup.exe; done
           ls -la release/
 
       - name: Create GitHub Release
