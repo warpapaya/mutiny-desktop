@@ -120,7 +120,7 @@ export function createMainWindow() {
       responseHeaders: {
         ...details.responseHeaders,
         "Content-Security-Policy": [
-          "default-src 'self' 'unsafe-inline' data: https://beta.revolt.chat https://*.revolt.chat; media-src 'self' blob: data: https:; connect-src 'self' wss: https:;",
+          "default-src 'self' 'unsafe-inline' data: https://app.mutinyapp.gg https://*.mutinyapp.gg; media-src 'self' blob: data: https:; connect-src 'self' wss: https:;",
         ],
       },
     });

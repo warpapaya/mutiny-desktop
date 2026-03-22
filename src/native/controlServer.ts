@@ -23,11 +23,11 @@ const PORT = 7423;
 const HOST = "127.0.0.1";
 
 // JS injected into the renderer for each command.
-// Uses multiple selector strategies for resilience across Revolt frontend versions.
+// Uses multiple selector strategies for resilience across Mutiny frontend versions.
 const SCRIPTS = {
   toggleMute: `
     (function () {
-      // Strategy 1: tooltip title (Revite / classic Revolt)
+      // Strategy 1: tooltip title (classic Mutiny)
       const byTitle = document.querySelector(
         'button[title*="Mute microphone"], button[title*="Unmute microphone"]'
       );
@@ -39,7 +39,7 @@ const SCRIPTS = {
       );
       if (byAria) { byAria.click(); return 'clicked:aria'; }
 
-      // Strategy 3: data-tooltip (newer Revolt SolidJS frontend)
+      // Strategy 3: data-tooltip (newer Mutiny frontend)
       const byTooltip = document.querySelector(
         '[data-tooltip*="ute microphone"]'
       );
