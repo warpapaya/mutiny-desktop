@@ -27,6 +27,14 @@ Or visit the [Releases](https://github.com/warpapaya/mutiny-desktop/releases) pa
 
 > **Auto-updates included** — once installed, Mutiny updates itself automatically in the background.
 
+## Branding Source of Truth
+
+Desktop branding should match the current iOS app branding.
+
+- Canonical icon source: `warpapaya/mutiny-ios` → `Stoat/Resources/Assets.xcassets/AppIcons/default.appiconset/mutiny-app-icon-v4.png`
+- Desktop export targets live in `assets/desktop/`
+- Any icon refresh should regenerate `icon.png`, `icon.icns`, and `icon.ico` from the same source artwork
+
 ## Features
 
 🎨 **Deep Purple Theme** — OLED-friendly dark interface designed for long sessions  
@@ -82,6 +90,18 @@ git -c submodule."assets".update=checkout submodule update --init assets
 ```
 
 > **Note:** Brand assets are required to build. Forks should provide their own.
+
+### Troubleshooting
+
+#### White screen / hosted app fails to boot
+
+If the shell opens but shows a blank page:
+
+- check the target URL used by the desktop shell
+- inspect renderer console output from Electron
+- verify the hosted Mutiny app finishes loading at `https://app.mutinyapp.gg`
+- verify CSP and network requests are not blocking startup resources
+- verify the release channel still points to Mutiny-branded builds
 
 ## Architecture
 

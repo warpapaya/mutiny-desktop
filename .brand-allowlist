@@ -1,0 +1,7 @@
+# Files that may intentionally mention upstream names for migration notes,
+# canonical asset source paths, or the brand-regression scanner itself.
+LICENSE
+DESKTOP_POLISH_SUMMARY.md
+README.md
+scripts/smoke-test-hosted-app.mjs
+.github/workflows/brand-check.yml

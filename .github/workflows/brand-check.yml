@@ -1,0 +1,40 @@
+name: Brand Regression Check
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  deny-upstream-branding:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Scan for forbidden upstream branding
+        run: |
+          set -euo pipefail
+
+          if [ -f .brand-allowlist ]; then
+            ALLOWLIST_ARGS="--exclude-from=.brand-allowlist"
+          else
+            ALLOWLIST_ARGS=""
+          fi
+
+          PATTERN='Stoat|stoat|Revolt|revolt|stoatchat/for-desktop|app\.revolt\.chat|api\.revolt\.chat|beta\.revolt\.chat'
+
+          # Intentionally skip git internals and generated dependency lockfiles for now.
+          if grep -RInE \
+            --exclude-dir=.git \
+            --exclude=pnpm-lock.yaml \
+            --exclude=.brand-allowlist \
+            ${ALLOWLIST_ARGS} \
+            "$PATTERN" .; then
+            echo
+            echo "❌ Forbidden upstream branding found."
+            exit 1
+          fi
+
+          echo "✅ No forbidden upstream branding found."

@@ -11,6 +11,7 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
+    "smoke:hosted": "node scripts/smoke-test-hosted-app.mjs",
     "install:flatpak": "flatpak --user install out/make/flatpak/x86_64/gg.mutinyapp.mutiny-desktop_stable_x86_64.flatpak",
     "run:flatpak": "flatpak run --socket=session-bus gg.mutinyapp.mutiny-desktop",
     "run:nix": "/usr/bin/env electron-nix ."
