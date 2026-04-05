@@ -2,10 +2,11 @@ import AutoLaunch from "auto-launch";
 
 import { ipcMain } from "electron";
 
+import { BRAND } from "./branding";
 import { mainWindow } from "./window";
 
 export const autoLaunch = new AutoLaunch({
-  name: "Mutiny",
+  name: BRAND.productName,
 });
 
 ipcMain.on("isAutostart?", () =>

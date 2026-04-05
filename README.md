@@ -21,7 +21,7 @@ Get the latest version for your platform:
 | Platform | Architecture | Link |
 |----------|-------------|------|
 | **macOS** | Apple Silicon (M1+) | [Download .zip](https://github.com/warpapaya/mutiny-desktop/releases/latest/download/Mutiny-darwin-arm64.zip) |
-| **Windows** | x64 | [Download Installer](https://github.com/warpapaya/mutiny-desktop/releases/latest/download/Mutiny-Setup.exe) |
+| **Windows** | x64 | [Download Installer](https://github.com/warpapaya/mutiny-desktop/releases/latest/download/Mutiny-setup.exe) |
 
 Or visit the [Releases](https://github.com/warpapaya/mutiny-desktop/releases) page for all available builds.
 

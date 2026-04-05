@@ -4,6 +4,7 @@ import { BrowserWindow, app, session, shell, systemPreferences } from "electron"
 import started from "electron-squirrel-startup";
 
 import { autoLaunch } from "./native/autoLaunch";
+import { BRAND } from "./native/branding";
 import { config } from "./native/config";
 import { initControlServer } from "./native/controlServer";
 import { initDiscordRpc } from "./native/discordRpc";
@@ -30,10 +31,10 @@ if (acquiredLock) {
   // Register protocol handler for mutiny:// deep links
   if (process.defaultApp) {
     if (process.argv.length >= 2) {
-      app.setAsDefaultProtocolClient('mutiny', process.execPath, [process.argv[1]]);
+      app.setAsDefaultProtocolClient(BRAND.protocol, process.execPath, [process.argv[1]]);
     }
   } else {
-    app.setAsDefaultProtocolClient('mutiny');
+    app.setAsDefaultProtocolClient(BRAND.protocol);
   }
 
   // Handle protocol URLs on macOS
@@ -47,7 +48,7 @@ if (acquiredLock) {
   });
 
   // Handle protocol URLs on Windows/Linux
-  const protocolUrl = process.argv.find(arg => arg.startsWith('mutiny://'));
+  const protocolUrl = process.argv.find(arg => arg.startsWith(`${BRAND.protocol}://`));
   if (protocolUrl) {
     setTimeout(() => {
       if (mainWindow) {
@@ -120,7 +121,7 @@ if (acquiredLock) {
 
     // Windows specific fix for notifications
     if (process.platform === "win32") {
-      app.setAppUserModelId("gg.mutinyapp.notifications");
+      app.setAppUserModelId(BRAND.notificationAppUserModelId);
     }
   });
 

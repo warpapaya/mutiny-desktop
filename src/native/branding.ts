@@ -1,0 +1,15 @@
+export const BRAND = {
+  productName: "Mutiny",
+  desktopName: "Mutiny",
+  executableName: "mutiny-desktop",
+  description: "Mutiny desktop chat client.",
+  protocol: "mutiny",
+  appUrl: "https://app.mutinyapp.gg",
+  apiUrl: "https://app.mutinyapp.gg/api",
+  mediaUrl: "https://app.mutinyapp.gg/autumn",
+  proxyUrl: "https://app.mutinyapp.gg/january",
+  websiteUrl: "https://mutinyapp.gg",
+  githubRepo: "warpapaya/mutiny-desktop",
+  appUserModelId: "gg.mutinyapp.desktop",
+  notificationAppUserModelId: "gg.mutinyapp.desktop",
+} as const;

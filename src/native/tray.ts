@@ -1,8 +1,10 @@
 import { Menu, Tray, nativeImage } from "electron";
 
+// eslint-disable-next-line import/no-unresolved
 import trayIconAsset from "../../assets/desktop/icon.png?asset";
 import { version } from "../../package.json";
 
+import { BRAND } from "./branding";
 import { mainWindow, quitApp } from "./window";
 
 // internal tray state
@@ -25,7 +27,7 @@ export function initTray() {
   const trayIcon = createTrayIcon();
   tray = new Tray(trayIcon);
   updateTrayMenu();
-  tray.setToolTip("Mutiny for Desktop");
+  tray.setToolTip(BRAND.desktopName);
   tray.setImage(trayIcon);
   tray.on("click", () => {
     mainWindow.show();
@@ -36,7 +38,7 @@ export function initTray() {
 export function updateTrayMenu() {
   tray.setContextMenu(
     Menu.buildFromTemplate([
-      { label: "Mutiny for Desktop", type: "normal", enabled: false },
+      { label: BRAND.desktopName, type: "normal", enabled: false },
       {
         label: "Version",
         type: "submenu",

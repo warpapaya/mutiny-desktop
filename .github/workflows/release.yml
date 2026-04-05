@@ -1,8 +1,4 @@
-# Electron desktop app is deprecated.
-# Mutiny has moved to native iOS/macOS (SwiftUI).
-# This workflow is preserved for reference but will not run automatically.
-
-name: Build and Release (Electron — deprecated)
+name: Build and Release (Electron)
 
 on:
   workflow_dispatch:
