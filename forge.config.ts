@@ -12,6 +12,13 @@ import { execSync } from "node:child_process";
 import { join } from "node:path";
 import { FuseV1Options, FuseVersion } from "@electron/fuses";
 
+const DEEPFILTERNET3_DIST = join(
+  __dirname,
+  "node_modules",
+  "deepfilternet3-noise-filter",
+  "dist",
+);
+
 // import { globSync } from "node:fs";
 
 const STRINGS = {
@@ -130,10 +137,11 @@ const config: ForgeConfig = {
     name: STRINGS.name,
     executableName: STRINGS.execName,
     icon: `${ASSET_DIR}/icon`,
-    // extraResource: [
-    //   // include all the asset files
-    //   ...globSync(ASSET_DIR + "/**/*"),
-    // ],
+    extraResource: [
+      // Bundle DeepFilterNet3 noise suppression assets for offline use.
+      // The web client can reference these locally when running in desktop mode.
+      DEEPFILTERNET3_DIST,
+    ],
     darwinDarkModeSupport: true,
     extendInfo: {
       NSMicrophoneUsageDescription:

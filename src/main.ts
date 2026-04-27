@@ -1,6 +1,6 @@
 import { updateElectronApp } from "update-electron-app";
 
-import { BrowserWindow, app, session, shell, systemPreferences } from "electron";
+import { BrowserWindow, app, dialog, ipcMain, session, shell, systemPreferences } from "electron";
 import started from "electron-squirrel-startup";
 
 import { autoLaunch } from "./native/autoLaunch";
@@ -61,6 +61,36 @@ if (acquiredLock) {
 
   // create and configure the app when electron is ready
   app.on("ready", () => {
+    // Set COOP/COEP headers to enable SharedArrayBuffer for AudioWorklet
+    // (required by DeepFilterNet3 noise suppression)
+    session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          "Cross-Origin-Opener-Policy": ["same-origin"],
+          "Cross-Origin-Embedder-Policy": ["require-corp"],
+          "Content-Security-Policy": [
+            "default-src 'self' 'unsafe-inline' data: https://app.mutinyapp.gg https://*.mutinyapp.gg; media-src 'self' blob: data: https:; connect-src 'self' wss: https:;",
+          ],
+        },
+      });
+    });
+
+    // Native file picker for audio files (entrance sounds / soundboard)
+    ipcMain.handle("dialog:openAudioFile", async () => {
+      const result = await dialog.showOpenDialog({
+        properties: ["openFile"],
+        filters: [
+          {
+            name: "Audio Files",
+            extensions: ["mp3", "wav", "ogg", "webm", "opus"],
+          },
+        ],
+      });
+      if (result.canceled) return null;
+      return result.filePaths[0];
+    });
+
     // Grant media permissions for voice chat (microphone, camera, screen share)
     session.defaultSession.setPermissionRequestHandler((_webContents, permission, callback) => {
       const allowed = ["media", "mediaKeySystem", "display-capture", "notifications"];
