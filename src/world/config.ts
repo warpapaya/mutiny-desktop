@@ -2,16 +2,12 @@ import { contextBridge, ipcRenderer } from "electron";
 
 let config: DesktopConfig;
 
-ipcRenderer.on("config", (_, data) => (config = data));
+ipcRenderer.on("config", (_, data: DesktopConfig) => (config = data));
 
 contextBridge.exposeInMainWorld("desktopConfig", {
   get: () => config,
-  set: (config: DesktopConfig) => ipcRenderer.send("config", config),
-  getAutostart() {
-    ipcRenderer.send("isAutostart?");
-    return new Promise((resolve) => ipcRenderer.once("isAutostart", resolve));
-  },
-  setAutostart(value: boolean) {
-    ipcRenderer.send("setAutostart", value);
-  },
+  set: (newConfig: Partial<DesktopConfig>) => ipcRenderer.send("config", newConfig),
+  getAutostart: (): Promise<boolean> => ipcRenderer.invoke("autostart:get"),
+  setAutostart: (value: boolean): Promise<boolean> =>
+    ipcRenderer.invoke("autostart:set", value),
 });

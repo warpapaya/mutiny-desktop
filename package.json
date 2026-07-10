@@ -11,6 +11,8 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "install:flatpak": "flatpak --user install out/make/flatpak/x86_64/gg.mutinyapp.mutiny-desktop_stable_x86_64.flatpak",
     "run:flatpak": "flatpak run --socket=session-bus gg.mutinyapp.mutiny-desktop",
     "run:nix": "/usr/bin/env electron-nix ."
@@ -42,15 +44,15 @@
     "eslint-plugin-import": "^2.32.0",
     "json-schema-typed": "^8.0.1",
     "prettier": "^3.6.2",
-    "typescript": "~4.5.4",
-    "vite": "^5.4.20"
+    "typescript": "~5.9.3",
+    "vite": "^5.4.20",
+    "vitest": "^2.1.9"
   },
   "dependencies": {
     "@electron-forge/maker-appx": "^7.9.0",
-    "@homebridge/dbus-native": "^0.7.2",
     "auto-launch": "^5.0.6",
-    "deepfilternet3-noise-filter": "^1.2.1",
     "bufferutil": "^4.0.9",
+    "deepfilternet3-noise-filter": "^1.2.1",
     "discord-rpc": "^4.0.1",
     "electron-squirrel-startup": "^1.0.1",
     "electron-store": "^10.1.0",

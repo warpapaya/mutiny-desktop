@@ -3,13 +3,22 @@ import { updateElectronApp } from "update-electron-app";
 import { BrowserWindow, app, dialog, ipcMain, session, shell, systemPreferences } from "electron";
 import started from "electron-squirrel-startup";
 
-import { autoLaunch } from "./native/autoLaunch";
+import "./native/autoLaunch";
+import { initBadges } from "./native/badges";
 import { config } from "./native/config";
 import { initControlServer } from "./native/controlServer";
 import { initDiscordRpc } from "./native/discordRpc";
 import { showScreenPicker } from "./native/screenPicker";
+import {
+  ProtocolUrlQueue,
+  applyFirstLaunchAutostart,
+  extractProtocolUrls,
+  isLoginItemLaunch,
+  shouldStartMinimised,
+} from "./native/startup";
 import { initTray } from "./native/tray";
 import { BUILD_URL, createMainWindow, mainWindow } from "./native/window";
+import { registerWindowControlHandlers } from "./native/windowControls";
 
 // Squirrel-specific logic
 // create/remove shortcuts on Windows when installing / uninstalling
@@ -24,6 +33,7 @@ if (!config.hardwareAcceleration) {
 }
 
 // ensure only one copy of the application can run
+const protocolUrls = new ProtocolUrlQueue();
 const acquiredLock = app.requestSingleInstanceLock();
 
 if (acquiredLock) {
@@ -36,31 +46,22 @@ if (acquiredLock) {
     app.setAsDefaultProtocolClient('mutiny');
   }
 
-  // Handle protocol URLs on macOS
-  app.on('open-url', (event, url) => {
+  // Queue protocol URLs until the hosted renderer has finished loading.
+  app.on("open-url", (event, url) => {
     event.preventDefault();
-    if (mainWindow) {
+    protocolUrls.enqueue(url);
+    if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.show();
       mainWindow.focus();
-      mainWindow.webContents.send('protocol-url', url);
     }
   });
-
-  // Handle protocol URLs on Windows/Linux
-  const protocolUrl = process.argv.find(arg => arg.startsWith('mutiny://'));
-  if (protocolUrl) {
-    setTimeout(() => {
-      if (mainWindow) {
-        mainWindow.webContents.send('protocol-url', protocolUrl);
-      }
-    }, 1000);
-  }
+  for (const url of extractProtocolUrls(process.argv)) protocolUrls.enqueue(url);
 
   // start auto update logic
   updateElectronApp();
 
   // create and configure the app when electron is ready
-  app.on("ready", () => {
+  app.on("ready", async () => {
     // Set COOP/COEP headers to enable SharedArrayBuffer for AudioWorklet
     // (required by DeepFilterNet3 noise suppression)
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
@@ -135,15 +136,30 @@ if (acquiredLock) {
       systemPreferences.getMediaAccessStatus("screen");
     }
 
-    // enable auto start on Windows and MacOS
-    if (config.firstLaunch) {
-      if (process.platform === "win32" || process.platform === "darwin") {
-        autoLaunch.enable();
-      }
+    // Apply the one-time autostart default before creating the first window.
+    try {
+      applyFirstLaunchAutostart(config);
+    } catch (error) {
+      console.error("[mutiny] Failed to apply the autostart default", error);
     }
 
-    // create window and application contexts
-    createMainWindow();
+    const wasOpenedAtLogin = isLoginItemLaunch(
+      process.platform,
+      process.argv,
+      app.getLoginItemSettings().wasOpenedAtLogin,
+    );
+    const window = createMainWindow({
+      startMinimised: shouldStartMinimised(
+        config.startMinimisedToTray,
+        wasOpenedAtLogin,
+      ),
+    });
+    window.webContents.once("did-finish-load", () =>
+      protocolUrls.rendererReady(window),
+    );
+
+    registerWindowControlHandlers(ipcMain, () => mainWindow);
+    initBadges();
     initTray();
     initDiscordRpc();
     initControlServer();
@@ -154,11 +170,14 @@ if (acquiredLock) {
     }
   });
 
-  // focus the window if we try to launch again
-  app.on("second-instance", () => {
-    mainWindow.show();
-    mainWindow.restore();
-    mainWindow.focus();
+  // Focus the current window and deliver protocol argv from a second process.
+  app.on("second-instance", (_event, argv) => {
+    for (const url of extractProtocolUrls(argv)) protocolUrls.enqueue(url);
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.show();
+      mainWindow.restore();
+      mainWindow.focus();
+    }
   });
 
   // macOS specific behaviour to keep app active in dock:
@@ -172,8 +191,11 @@ if (acquiredLock) {
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      createMainWindow();
-    } else {
+      const window = createMainWindow();
+      window.webContents.once("did-finish-load", () =>
+        protocolUrls.rendererReady(window),
+      );
+    } else if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.show();
       mainWindow.focus();
     }

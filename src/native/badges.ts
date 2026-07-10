@@ -1,69 +1,41 @@
-import dbus from "@homebridge/dbus-native";
-
 import { NativeImage, app, ipcMain, nativeImage } from "electron";
 
+import { registerBadgeHandler } from "./badgesRegistration";
 import { mainWindow } from "./window";
 
-// internal state
 const nativeIcons: Record<number, NativeImage> = {};
-let sessionBus: dbus.MessageBus | null;
 
-export async function setBadgeCount(count: number) {
-  switch (process.platform) {
-    case "win32":
-    case "linux":
-      if (count === 0) {
-        mainWindow.setOverlayIcon(null, "No Notifications");
-        break;
-      }
+function createBadgeIcon(count: number): NativeImage {
+  const label = count === -1 ? "•" : String(Math.min(count, 10));
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><circle cx="16" cy="16" r="15" fill="#d32f2f"/><text x="16" y="21" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="700" fill="white">${label}</text></svg>`;
+  return nativeImage.createFromDataURL(
+    `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`,
+  );
+}
 
-      if (!nativeIcons[count])
-        nativeIcons[count] = nativeImage.createFromDataURL(
-          await import(
-            `../../assets/desktop/badges/${Math.min(count, 10)}.ico?asset`
-          ).then((asset) => asset.default),
-        );
+export async function setBadgeCount(count: number): Promise<void> {
+  if (!Number.isInteger(count) || count < -1 || !mainWindow || mainWindow.isDestroyed()) {
+    return;
+  }
 
-      mainWindow.setOverlayIcon(
-        nativeIcons[count],
-        count === -1 ? `Unread Messages` : `${count} Notifications`,
-      );
+  if (process.platform === "darwin") {
+    app.dock.setBadge(count === -1 ? "•" : count === 0 ? "" : count.toString());
+    return;
+  }
 
-      break;
-    // @ts-expect-error this is `linux` block
-    case "_": // todo: try to get this to work
-      // send D-Bus message
-      // @ts-expect-error undocumented API
-      if (!sessionBus) sessionBus = dbus.sessionBus();
-
-      // @ts-expect-error undocumented API
-      sessionBus.connection.message({
-        // @ts-expect-error undocumented API
-        type: dbus.messageType.signal,
-        serial: 1,
-        path: "/",
-        interface: "com.canonical.Unity.LauncherEntry",
-        member: "Update",
-        signature: "sa{sv}",
-        body: [
-          process.env.container === "1"
-            ? "application://gg.mutinyapp.mutiny-desktop.desktop" // flatpak handling
-            : "application://mutiny-desktop.desktop",
-          [
-            ["count", ["x", Math.min(count, 0)]],
-            ["count-visible", ["b", count !== 0]],
-          ],
-        ],
-      });
-
-      break;
-    case "darwin":
-      app.dock.setBadge(
-        count === -1 ? "•" : count === 0 ? "" : count.toString(),
-      );
-
-      break;
+  if (process.platform === "win32" || process.platform === "linux") {
+    if (count === 0) {
+      mainWindow.setOverlayIcon(null, "No Notifications");
+      return;
+    }
+    nativeIcons[count] ??= createBadgeIcon(count);
+    mainWindow.setOverlayIcon(
+      nativeIcons[count],
+      count === -1 ? "Unread Messages" : `${count} Notifications`,
+    );
   }
 }
 
-ipcMain.on("setBadgeCount", (_event, count: number) => setBadgeCount(count));
+export function initBadges(): void {
+  registerBadgeHandler(ipcMain, setBadgeCount);
+}

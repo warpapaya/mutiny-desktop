@@ -1,65 +1,14 @@
-import { type JSONSchema } from "json-schema-typed";
-
 import { ipcMain } from "electron";
 import Store from "electron-store";
+
+import { configDefaults, configSchema } from "./configSchema";
 
 import { destroyDiscordRpc, initDiscordRpc } from "./discordRpc";
 import { mainWindow } from "./window";
 
-const schema = {
-  firstLaunch: {
-    type: "boolean",
-  } as JSONSchema.Boolean,
-  customFrame: {
-    type: "boolean",
-  } as JSONSchema.Boolean,
-  minimiseToTray: {
-    type: "boolean",
-  } as JSONSchema.Boolean,
-  spellchecker: {
-    type: "boolean",
-  } as JSONSchema.Boolean,
-  hardwareAcceleration: {
-    type: "boolean",
-  } as JSONSchema.Boolean,
-  discordRpc: {
-    type: "boolean",
-  } as JSONSchema.Boolean,
-  windowState: {
-    type: "object",
-    properties: {
-      // x: {
-      //   type: 'number'
-      // } as JSONSchema.Number,
-      // y: {
-      //   type: 'number'
-      // } as JSONSchema.Number,
-      // width: {
-      //   type: 'number'
-      // } as JSONSchema.Number,
-      // height: {
-      //   type: 'number'
-      // } as JSONSchema.Number,
-      isMaximised: {
-        type: "boolean",
-      } as JSONSchema.Boolean,
-    },
-  } as JSONSchema.Object,
-};
-
 const store = new Store({
-  schema,
-  defaults: {
-    firstLaunch: true,
-    customFrame: true,
-    minimiseToTray: true,
-    spellchecker: true,
-    hardwareAcceleration: true,
-    discordRpc: true,
-    windowState: {
-      isMaximised: false,
-    },
-  } as DesktopConfig,
+  schema: configSchema,
+  defaults: configDefaults,
 });
 
 /**
@@ -67,10 +16,12 @@ const store = new Store({
  */
 class Config {
   sync() {
+    if (!mainWindow || mainWindow.isDestroyed()) return;
     mainWindow.webContents.send("config", {
       firstLaunch: this.firstLaunch,
       customFrame: this.customFrame,
       minimiseToTray: this.minimiseToTray,
+      startMinimisedToTray: this.startMinimisedToTray,
       spellchecker: this.spellchecker,
       hardwareAcceleration: this.hardwareAcceleration,
       discordRpc: this.discordRpc,
@@ -116,6 +67,20 @@ class Config {
       value,
     );
 
+    this.sync();
+  }
+
+  get startMinimisedToTray() {
+    return (store as never as { get(k: string): boolean }).get(
+      "startMinimisedToTray",
+    );
+  }
+
+  set startMinimisedToTray(value: boolean) {
+    (store as never as { set(k: string, value: boolean): void }).set(
+      "startMinimisedToTray",
+      value,
+    );
     this.sync();
   }
 

@@ -1,23 +1,39 @@
 import AutoLaunch from "auto-launch";
+import { app, ipcMain } from "electron";
 
-import { ipcMain } from "electron";
+import { WINDOWS_AUTOSTART_ARG } from "./startup";
 
-import { mainWindow } from "./window";
+const linuxAutoLaunch = new AutoLaunch({ name: "Mutiny" });
 
-export const autoLaunch = new AutoLaunch({
-  name: "Mutiny",
-});
+export const autoLaunch = {
+  async isEnabled(): Promise<boolean> {
+    if (process.platform === "linux") return linuxAutoLaunch.isEnabled();
+    return app.getLoginItemSettings().openAtLogin;
+  },
 
-ipcMain.on("isAutostart?", () =>
-  autoLaunch
-    .isEnabled()
-    .then((enabled) => mainWindow.webContents.send("isAutostart", enabled)),
-);
+  async enable(): Promise<void> {
+    if (process.platform === "linux") return linuxAutoLaunch.enable();
+    app.setLoginItemSettings({
+      openAtLogin: true,
+      args: process.platform === "win32" ? [WINDOWS_AUTOSTART_ARG] : [],
+    });
+  },
 
-ipcMain.on("setAutostart", (_event, state: boolean) => {
+  async disable(): Promise<void> {
+    if (process.platform === "linux") return linuxAutoLaunch.disable();
+    app.setLoginItemSettings({
+      openAtLogin: false,
+      args: process.platform === "win32" ? [WINDOWS_AUTOSTART_ARG] : [],
+    });
+  },
+};
+
+ipcMain.handle("autostart:get", async (): Promise<boolean> => autoLaunch.isEnabled());
+ipcMain.handle("autostart:set", async (_event, state: boolean): Promise<boolean> => {
   if (state) {
-    autoLaunch.enable();
+    await autoLaunch.enable();
   } else {
-    autoLaunch.disable();
+    await autoLaunch.disable();
   }
+  return autoLaunch.isEnabled();
 });

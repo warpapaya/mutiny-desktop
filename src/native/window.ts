@@ -5,13 +5,13 @@ import {
   Menu,
   MenuItem,
   app,
-  ipcMain,
   nativeImage,
 } from "electron";
 
 import windowIconAsset from "../../assets/desktop/icon.png?asset";
 
 import { config } from "./config";
+import { shouldRestoreMaximised } from "./startup";
 import { updateTrayMenu } from "./tray";
 
 // global reference to main window
@@ -35,9 +35,10 @@ const windowIcon = nativeImage.createFromDataURL(windowIconAsset);
 /**
  * Create the main application window
  */
-export function createMainWindow() {
+export function createMainWindow(options: { startMinimised?: boolean } = {}) {
   // create the window
   mainWindow = new BrowserWindow({
+    show: !options.startMinimised,
     minWidth: 300,
     minHeight: 300,
     width: 1280,
@@ -50,28 +51,34 @@ export function createMainWindow() {
       preload: join(__dirname, "preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
-      spellcheck: true,
+      spellcheck: config.spellchecker,
     },
   });
 
   // hide the options
   mainWindow.setMenu(null);
 
-  // maximise the window if it was maximised before
-  if (config.windowState.isMaximised) {
+  // Restore visible windows to their previous state. Calling maximize() on a
+  // hidden BrowserWindow makes it visible, defeating login-to-tray startup.
+  if (
+    shouldRestoreMaximised(
+      config.windowState.isMaximised,
+      options.startMinimised === true,
+    )
+  ) {
     mainWindow.maximize();
   }
 
   // load the entrypoint
   mainWindow.loadURL(BUILD_URL.toString());
 
-  mainWindow.webContents.on("did-fail-load", (_e: any, code: number, desc: string, url: string) => {
-    console.error(`[LOAD FAIL] ${url} — ${code}: ${desc}`);
+  mainWindow.webContents.on("did-fail-load", (_event, code, description, url) => {
+    console.error(`[LOAD FAIL] ${url} — ${code}: ${description}`);
   });
   mainWindow.webContents.on("did-finish-load", () => {
     console.log("[LOAD OK] Page finished loading");
   });
-  mainWindow.webContents.on("console-message", (_e: any, _level: number, message: string) => {
+  mainWindow.webContents.on("console-message", (_event, _level, message) => {
     console.log(`[RENDERER] ${message}`);
   });
 
@@ -160,17 +167,8 @@ export function createMainWindow() {
     }
   });
 
-  // push world events to the window
-  ipcMain.on("minimise", () => mainWindow.minimize());
-  ipcMain.on("maximise", () =>
-    mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize(),
-  );
-  ipcMain.on("close", () => mainWindow.close());
-
   // mainWindow.webContents.openDevTools();
-
-  // let i = 0;
-  // setInterval(() => setBadgeCount((++i % 30) + 1), 1000);
+  return mainWindow;
 }
 
 /**
