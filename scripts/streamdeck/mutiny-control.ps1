@@ -24,7 +24,11 @@ try {
     Write-Host "OK: $($response | ConvertTo-Json -Compress)"
     exit 0
 } catch {
-    $code = $_.Exception.Response?.StatusCode?.value__
+    $code = $null
+    $errorResponse = $_.Exception.Response
+    if ($null -ne $errorResponse -and $null -ne $errorResponse.StatusCode) {
+        $code = $errorResponse.StatusCode.value__
+    }
     if ($null -eq $code) {
         Write-Warning $_.Exception.Message
     } else {
