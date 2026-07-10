@@ -17,6 +17,7 @@ on:
       - "tsconfig.json"
       - ".eslintrc.json"
       - ".github/workflows/build.yml"
+      - ".github/workflows/release.yml"
 
 jobs:
   build:
