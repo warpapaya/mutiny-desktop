@@ -7,7 +7,7 @@ import { MakerZIP } from "@electron-forge/maker-zip";
 import { FusesPlugin } from "@electron-forge/plugin-fuses";
 import { VitePlugin } from "@electron-forge/plugin-vite";
 import { PublisherGithub } from "@electron-forge/publisher-github";
-import type { ForgeConfig, ForgeHookFn } from "@electron-forge/shared-types";
+import type { ForgeConfig } from "@electron-forge/shared-types";
 import { execSync } from "node:child_process";
 import { join } from "node:path";
 import { FuseV1Options, FuseVersion } from "@electron/fuses";

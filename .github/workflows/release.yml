@@ -52,6 +52,24 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Verify requested version matches package metadata
+        shell: bash
+        run: |
+          package_version="$(node -p 'require("./package.json").version')"
+          test "${{ inputs.version }}" = "v${package_version}" || {
+            echo "Requested release ${{ inputs.version }} does not match package.json v${package_version}" >&2
+            exit 1
+          }
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Unit tests
+        run: pnpm test
+
       - name: Build and package
         run: pnpm run make
         env:
@@ -99,6 +117,7 @@ jobs:
           for f in release/Mutiny-darwin-arm64-*.zip; do [ -f "$f" ] && cp "$f" release/Mutiny-darwin-arm64.zip; done
           for f in release/Mutiny-win32-x64-*.zip; do [ -f "$f" ] && cp "$f" release/Mutiny-win32-x64.zip; done
           for f in release/mutiny-desktop-setup.exe; do [ -f "$f" ] && cp "$f" release/Mutiny-setup.exe; done
+          (cd release && sha256sum ./* > SHA256SUMS.txt)
           ls -la release/
 
       - name: Create GitHub Release
