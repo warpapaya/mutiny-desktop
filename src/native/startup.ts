@@ -1,5 +1,12 @@
 export type StartupConfig = { firstLaunch: boolean };
 export const WINDOWS_AUTOSTART_ARG = "--mutiny-autostart";
+// auto-launch's supported Linux Desktop Entry mechanism appends this argument
+// when `isHidden` is enabled. It also gives us an unambiguous login launch signal.
+export const LINUX_AUTOSTART_ARG = "--hidden";
+
+export function linuxAutoLaunchOptions(): { name: string; isHidden: true } {
+  return { name: "Mutiny", isHidden: true };
+}
 
 export function applyFirstLaunchAutostart(
   config: StartupConfig,
@@ -20,6 +27,7 @@ export function isLoginItemLaunch(
 ): boolean {
   if (platform === "win32") return argv.includes(WINDOWS_AUTOSTART_ARG);
   if (platform === "darwin") return wasOpenedAtLogin;
+  if (platform === "linux") return argv.includes(LINUX_AUTOSTART_ARG);
   return false;
 }
 

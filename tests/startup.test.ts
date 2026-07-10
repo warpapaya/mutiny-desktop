@@ -2,9 +2,11 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   ProtocolUrlQueue,
+  LINUX_AUTOSTART_ARG,
   applyFirstLaunchAutostart,
   extractProtocolUrls,
   isLoginItemLaunch,
+  linuxAutoLaunchOptions,
   shouldRestoreMaximised,
   shouldStartMinimised,
 } from "../src/native/startup";
@@ -26,7 +28,12 @@ describe("startup settings", () => {
     expect(isLoginItemLaunch("win32", ["Mutiny.exe", "--mutiny-autostart"], false)).toBe(true);
     expect(isLoginItemLaunch("win32", ["Mutiny.exe"], true)).toBe(false);
     expect(isLoginItemLaunch("darwin", ["Mutiny"], true)).toBe(true);
-    expect(isLoginItemLaunch("linux", ["mutiny", "--mutiny-autostart"], true)).toBe(false);
+    expect(isLoginItemLaunch("linux", ["mutiny", LINUX_AUTOSTART_ARG], false)).toBe(true);
+    expect(isLoginItemLaunch("linux", ["mutiny"], true)).toBe(false);
+  });
+
+  it("configures Linux autostart to include its identifiable login argument", () => {
+    expect(linuxAutoLaunchOptions()).toEqual({ name: "Mutiny", isHidden: true });
   });
 
   it("starts hidden only for a login-item launch with the setting enabled", () => {

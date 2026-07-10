@@ -11,6 +11,24 @@ function root(...buttons: ReturnType<typeof button>[]) {
 }
 
 describe("voice control contract", () => {
+  it("prefers an explicit Mutiny voice-control hook", () => {
+    const explicit = button("custom-icon");
+    const generic = button("mic");
+    const explicitRoot = {
+      querySelector: vi.fn((selector: string) =>
+        selector === '[data-mutiny-voice-control="toggleMute"]' ? explicit : null,
+      ),
+      querySelectorAll: vi.fn(() => [generic]),
+    };
+
+    expect(executeVoiceControl(explicitRoot, "toggleMute")).toBe("clicked:explicit-hook");
+    expect(explicit.click).toHaveBeenCalledOnce();
+    expect(generic.click).not.toHaveBeenCalled();
+    expect(explicitRoot.querySelector).toHaveBeenCalledWith(
+      '[data-mutiny-voice-control="toggleMute"]',
+    );
+  });
+
   it.each([
     ["toggleMute", "mic"],
     ["toggleMute", "mic_off"],
@@ -32,7 +50,9 @@ describe("voice control contract", () => {
   it("keeps accessible-label compatibility for hosted client variants", () => {
     const target = button("");
     const accessibleRoot = {
-      querySelector: vi.fn(() => target),
+      querySelector: vi.fn((selector: string) =>
+        selector.includes('button[title*="Disconnect"]') ? target : null,
+      ),
       querySelectorAll: (): ReturnType<typeof button>[] => [],
     };
     expect(executeVoiceControl(accessibleRoot, "disconnect")).toBe(

@@ -1,9 +1,9 @@
 import AutoLaunch from "auto-launch";
 import { app, ipcMain } from "electron";
 
-import { WINDOWS_AUTOSTART_ARG } from "./startup";
+import { WINDOWS_AUTOSTART_ARG, linuxAutoLaunchOptions } from "./startup";
 
-const linuxAutoLaunch = new AutoLaunch({ name: "Mutiny" });
+const linuxAutoLaunch = new AutoLaunch(linuxAutoLaunchOptions());
 
 export const autoLaunch = {
   async isEnabled(): Promise<boolean> {

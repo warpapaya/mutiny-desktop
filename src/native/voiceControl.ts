@@ -12,6 +12,14 @@ type RootLike = {
 };
 
 export function executeVoiceControl(root: RootLike, action: VoiceControlAction): string {
+  const explicitControl = root.querySelector?.(
+    `[data-mutiny-voice-control="${action}"]`,
+  );
+  if (explicitControl && !explicitControl.disabled) {
+    explicitControl.click();
+    return "clicked:explicit-hook";
+  }
+
   const accessibleSelectors: Record<VoiceControlAction, string> = {
     toggleMute:
       'button[title*="Mute microphone"], button[title*="Unmute microphone"], button[aria-label*="ute microphone"], [data-tooltip*="ute microphone"]',

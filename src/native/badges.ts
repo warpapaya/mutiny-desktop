@@ -1,6 +1,7 @@
 import { NativeImage, app, ipcMain, nativeImage } from "electron";
 
 import { registerBadgeHandler } from "./badgesRegistration";
+import { badgePlan, normalizeBadgeCacheKey } from "./badgePolicy";
 import { mainWindow } from "./window";
 
 const nativeIcons: Record<number, NativeImage> = {};
@@ -18,20 +19,27 @@ export async function setBadgeCount(count: number): Promise<void> {
     return;
   }
 
-  if (process.platform === "darwin") {
-    app.dock.setBadge(count === -1 ? "•" : count === 0 ? "" : count.toString());
+  const plan = badgePlan(process.platform, count);
+  if (plan.kind === "dock") {
+    app.dock.setBadge(plan.label);
     return;
   }
 
-  if (process.platform === "win32" || process.platform === "linux") {
-    if (count === 0) {
+  if (plan.kind === "app") {
+    app.setBadgeCount(plan.count);
+    return;
+  }
+
+  if (plan.kind === "overlay") {
+    if (plan.count === 0) {
       mainWindow.setOverlayIcon(null, "No Notifications");
       return;
     }
-    nativeIcons[count] ??= createBadgeIcon(count);
+    const cacheKey = normalizeBadgeCacheKey(plan.count);
+    nativeIcons[cacheKey] ??= createBadgeIcon(cacheKey);
     mainWindow.setOverlayIcon(
-      nativeIcons[count],
-      count === -1 ? "Unread Messages" : `${count} Notifications`,
+      nativeIcons[cacheKey],
+      plan.count === -1 ? "Unread Messages" : `${plan.count} Notifications`,
     );
   }
 }
