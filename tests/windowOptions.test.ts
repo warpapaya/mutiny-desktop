@@ -6,8 +6,9 @@ import {
 } from "../src/native/windowOptions";
 
 describe("main window options", () => {
-  it("reports custom chrome only where the app actually uses it", () => {
-    expect(usesCustomFrame("darwin", true)).toBe(false);
+  it("reports the configured custom titlebar on every supported desktop platform", () => {
+    expect(usesCustomFrame("darwin", true)).toBe(true);
+    expect(usesCustomFrame("darwin", false)).toBe(false);
     expect(usesCustomFrame("win32", true)).toBe(true);
     expect(usesCustomFrame("linux", true)).toBe(true);
     expect(usesCustomFrame("linux", false)).toBe(false);

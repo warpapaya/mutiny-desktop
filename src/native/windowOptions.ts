@@ -8,10 +8,10 @@ type MainWindowChromeOptions = Pick<
 >;
 
 export function usesCustomFrame(
-  platform: NodeJS.Platform,
+  _platform: NodeJS.Platform,
   customFrame: boolean,
 ): boolean {
-  return platform !== "darwin" && customFrame;
+  return customFrame;
 }
 
 export function mainWindowOptions(
