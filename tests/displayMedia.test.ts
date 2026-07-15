@@ -4,6 +4,7 @@ import {
   SCREEN_PERMISSION_SETTINGS_URL,
   createDisplayMediaRequestHandler,
   displayMediaHandlerOptions,
+  openScreenSettingsIfRequested,
   screenPermissionGuidance,
 } from "../src/native/displayMedia";
 
@@ -32,6 +33,23 @@ describe("display media request handling", () => {
     expect(guidance.detail).toContain("administrator");
     expect(guidance.detail).not.toContain("System Settings");
     expect(guidance.buttons).toEqual(["OK"]);
+  });
+
+  it("does not open Screen Recording settings for a restricted user", async () => {
+    const openExternal = vi.fn().mockResolvedValue(undefined);
+
+    await openScreenSettingsIfRequested("restricted", 0, openExternal);
+
+    expect(openExternal).not.toHaveBeenCalled();
+  });
+
+  it("opens Screen Recording settings when a denied user chooses the action", async () => {
+    const openExternal = vi.fn().mockResolvedValue(undefined);
+
+    await openScreenSettingsIfRequested("denied", 0, openExternal);
+
+    expect(openExternal).toHaveBeenCalledOnce();
+    expect(openExternal).toHaveBeenCalledWith(SCREEN_PERMISSION_SETTINGS_URL);
   });
 
   it.each(["denied", "restricted"] as const)(

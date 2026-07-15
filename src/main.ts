@@ -9,9 +9,9 @@ import { config } from "./native/config";
 import { initControlServer } from "./native/controlServer";
 import { initDiscordRpc } from "./native/discordRpc";
 import {
-  SCREEN_PERMISSION_SETTINGS_URL,
   createDisplayMediaRequestHandler,
   displayMediaHandlerOptions,
+  openScreenSettingsIfRequested,
   screenPermissionGuidance,
 } from "./native/displayMedia";
 import { showScreenPicker } from "./native/screenPicker";
@@ -122,9 +122,7 @@ if (acquiredLock) {
             mainWindow,
             screenPermissionGuidance(status),
           );
-          if (result.response === 0) {
-            await shell.openExternal(SCREEN_PERMISSION_SETTINGS_URL);
-          }
+          await openScreenSettingsIfRequested(status, result.response, shell.openExternal);
         },
       }),
       displayMediaHandlerOptions(process.platform),

@@ -23,6 +23,16 @@ interface DisplayMediaDependencies {
 export const SCREEN_PERMISSION_SETTINGS_URL =
   "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture";
 
+export async function openScreenSettingsIfRequested(
+  status: "denied" | "restricted",
+  response: number,
+  openExternal: (url: string) => Promise<void>,
+): Promise<void> {
+  if (status === "denied" && response === 0) {
+    await openExternal(SCREEN_PERMISSION_SETTINGS_URL);
+  }
+}
+
 export function screenPermissionGuidance(
   status: "denied" | "restricted",
 ): Electron.MessageBoxOptions {
