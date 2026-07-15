@@ -189,6 +189,12 @@ const config: ForgeConfig = {
           config: "vite.preload.config.ts",
           target: "preload",
         },
+        {
+          // The fallback screen picker gets a separate, narrow IPC bridge.
+          entry: "src/pickerPreload.ts",
+          config: "vite.preload.config.ts",
+          target: "preload",
+        },
       ],
       renderer: [],
     }),

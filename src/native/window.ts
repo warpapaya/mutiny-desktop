@@ -12,6 +12,7 @@ import windowIconAsset from "../../assets/desktop/icon.png?asset";
 
 import { config } from "./config";
 import { shouldRestoreMaximised } from "./startup";
+import { mainWindowOptions } from "./windowOptions";
 import { updateTrayMenu } from "./tray";
 
 // global reference to main window
@@ -39,12 +40,10 @@ export function createMainWindow(options: { startMinimised?: boolean } = {}) {
   // create the window
   mainWindow = new BrowserWindow({
     show: !options.startMinimised,
-    minWidth: 300,
-    minHeight: 300,
+    ...mainWindowOptions(process.platform, config.customFrame),
     width: 1280,
     height: 720,
     backgroundColor: "#191919",
-    frame: !config.customFrame,
     icon: windowIcon,
     webPreferences: {
       // relative to `.vite/build`
