@@ -9,6 +9,7 @@ import { VitePlugin } from "@electron-forge/plugin-vite";
 import { PublisherGithub } from "@electron-forge/publisher-github";
 import type { ForgeConfig } from "@electron-forge/shared-types";
 import { execSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { FuseV1Options, FuseVersion } from "@electron/fuses";
 
@@ -29,6 +30,9 @@ const STRINGS = {
 };
 
 const ASSET_DIR = "assets/desktop";
+const PACKAGE_VERSION = JSON.parse(
+  readFileSync(join(__dirname, "package.json"), "utf8"),
+).version as string;
 
 /**
  * Build targets for the desktop app
@@ -37,13 +41,12 @@ const makers: ForgeConfig["makers"] = [
   new MakerSquirrel({
     name: STRINGS.name,
     authors: STRINGS.author,
-    // todo: hoist this
-    iconUrl: `https://mutinyapp.gg/assets/icon.ico`,
+    iconUrl: `https://raw.githubusercontent.com/warpapaya/mutiny-desktop/v${PACKAGE_VERSION}/assets/desktop/icon.ico`,
     // todo: loadingGif
     setupIcon: `${ASSET_DIR}/icon.ico`,
     description: STRINGS.description,
     exe: `${STRINGS.execName}.exe`,
-    setupExe: `${STRINGS.execName}-setup.exe`,
+    setupExe: "Mutiny-Setup.exe",
     copyright: "Copyright (C) 2025 Mutiny",
   }),
   new MakerZIP({}),
