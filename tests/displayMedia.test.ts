@@ -26,6 +26,14 @@ describe("display media request handling", () => {
     expect(SCREEN_PERMISSION_SETTINGS_URL).toContain("Privacy_ScreenCapture");
   });
 
+  it("directs restricted users to an administrator without a misleading Settings action", () => {
+    const guidance = screenPermissionGuidance("restricted");
+
+    expect(guidance.detail).toContain("administrator");
+    expect(guidance.detail).not.toContain("System Settings");
+    expect(guidance.buttons).toEqual(["OK"]);
+  });
+
   it.each(["denied", "restricted"] as const)(
     "returns recoverable guidance without capturing when screen access is %s",
     async (status) => {

@@ -24,12 +24,12 @@ describe("main window options", () => {
   });
 
   it.each(["win32", "linux"] as const)(
-    "keeps the configured custom frame on %s",
+    "preserves the 300 by 300 minimum and configured custom frame on %s",
     (platform) => {
       expect(mainWindowOptions(platform, true)).toMatchObject({
         frame: false,
-        minWidth: 800,
-        minHeight: 600,
+        minWidth: 300,
+        minHeight: 300,
       });
       expect(mainWindowOptions(platform, false)).toMatchObject({ frame: true });
       expect(mainWindowOptions(platform, true)).not.toHaveProperty("titleBarStyle");

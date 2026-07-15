@@ -3,10 +3,7 @@ import { join } from "node:path";
 import { BrowserWindow, desktopCapturer, ipcMain } from "electron";
 
 import { mainWindow } from "./window";
-import {
-  createPickerResultController,
-  registerPickerIpc,
-} from "./screenPickerResult";
+import { registerPickerSession } from "./screenPickerResult";
 
 /**
  * Show the fallback screen/window picker and return the selected source.
@@ -43,21 +40,7 @@ export async function showScreenPicker(): Promise<Electron.DesktopCapturerSource
 
     picker.setMenu(null);
 
-    const controller = createPickerResultController(
-      sources,
-      resolve,
-      () => picker.close(),
-    );
-    const unregisterIpc = registerPickerIpc(
-      ipcMain,
-      picker.webContents,
-      controller,
-    );
-
-    picker.on("closed", () => {
-      unregisterIpc();
-      controller.closed();
-    });
+    registerPickerSession(ipcMain, picker, sources, resolve);
 
     const sourceData = sources.map((source) => ({
       id: source.id,
@@ -71,7 +54,7 @@ export async function showScreenPicker(): Promise<Electron.DesktopCapturerSource
       .loadURL(
         `data:text/html;charset=utf-8,${encodeURIComponent(buildPickerHTML(sourceData))}`,
       )
-      .catch(() => controller.cancel());
+      .catch(() => picker.close());
   });
 }
 

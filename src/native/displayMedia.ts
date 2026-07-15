@@ -26,16 +26,26 @@ export const SCREEN_PERMISSION_SETTINGS_URL =
 export function screenPermissionGuidance(
   status: "denied" | "restricted",
 ): Electron.MessageBoxOptions {
-  const restriction =
-    status === "restricted"
-      ? "Screen recording is restricted by a system policy."
-      : "Screen recording access is currently denied.";
+  if (status === "restricted") {
+    return {
+      type: "warning",
+      title: "Screen Recording Restricted",
+      message: "Mutiny cannot share your screen because access is restricted.",
+      detail:
+        "Screen recording is restricted by a system policy. Contact your administrator to request access.",
+      buttons: ["OK"],
+      defaultId: 0,
+      cancelId: 0,
+      noLink: true,
+    };
+  }
 
   return {
     type: "warning",
     title: "Screen Recording Permission Required",
     message: "Mutiny cannot share your screen without Screen Recording access.",
-    detail: `${restriction} Open System Settings → Privacy & Security → Screen Recording, enable Mutiny, then restart Mutiny.`,
+    detail:
+      "Screen recording access is currently denied. Open System Settings → Privacy & Security → Screen Recording, enable Mutiny, then restart Mutiny.",
     buttons: ["Open System Settings", "Cancel"],
     defaultId: 0,
     cancelId: 1,

@@ -18,11 +18,10 @@ export function mainWindowOptions(
   platform: NodeJS.Platform,
   customFrame: boolean,
 ): MainWindowChromeOptions {
-  const minimumSize = { minWidth: 800, minHeight: 600 };
-
   if (platform === "darwin") {
     return {
-      ...minimumSize,
+      minWidth: 800,
+      minHeight: 600,
       frame: true,
       titleBarStyle: "hiddenInset",
       trafficLightPosition: { x: 16, y: 16 },
@@ -30,7 +29,8 @@ export function mainWindowOptions(
   }
 
   return {
-    ...minimumSize,
+    minWidth: 300,
+    minHeight: 300,
     frame: !customFrame,
   };
 }
