@@ -8,9 +8,9 @@ import { FusesPlugin } from "@electron-forge/plugin-fuses";
 import { VitePlugin } from "@electron-forge/plugin-vite";
 import { PublisherGithub } from "@electron-forge/publisher-github";
 import type { ForgeConfig } from "@electron-forge/shared-types";
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { FuseV1Options, FuseVersion } from "@electron/fuses";
 
 const DEEPFILTERNET3_DIST = join(
@@ -139,6 +139,8 @@ const config: ForgeConfig = {
     asar: true,
     name: STRINGS.name,
     executableName: STRINGS.execName,
+    appBundleId: "com.electron.mutiny",
+    helperBundleId: "com.electron.mutiny.helper",
     icon: `${ASSET_DIR}/icon`,
     extraResource: [
       // Bundle DeepFilterNet3 noise suppression assets for offline use.
@@ -163,15 +165,21 @@ const config: ForgeConfig = {
   },
   hooks: {
     postPackage: async (_config, options) => {
-      if (options.platform === "darwin") {
-        const appPath = join(options.outputPaths[0], `${STRINGS.name}.app`);
-        const entitlements = join(__dirname, "entitlements.mac.plist");
-        console.log(`Ad-hoc signing ${appPath} with entitlements...`);
-        execSync(
-          `codesign --deep --force --sign - --entitlements "${entitlements}" "${appPath}"`,
+      if (options.platform !== "darwin") return;
+
+      // Signing is intentionally explicit. A macOS package without a selected mode
+      // is neither a local-test build nor a releasable artifact.
+      if (options.outputPaths.length !== 1) {
+        throw new Error(
+          `macOS signing requires exactly one Forge outputPath; received ${options.outputPaths.length}`,
         );
-        console.log("Signed successfully.");
       }
+      const appPath = resolve(options.outputPaths[0], `${STRINGS.name}.app`);
+      execFileSync(
+        process.execPath,
+        [join(__dirname, "scripts", "macos-sign.mjs"), appPath],
+        { stdio: "inherit" },
+      );
     },
   },
   rebuildConfig: {},
