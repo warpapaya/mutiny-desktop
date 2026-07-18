@@ -5,6 +5,7 @@ import { configDefaults, configSchema } from "./configSchema";
 
 import { destroyDiscordRpc, initDiscordRpc } from "./discordRpc";
 import { mainWindow } from "./window";
+import { usesCustomFrame } from "./windowOptions";
 
 const store = new Store({
   schema: configSchema,
@@ -19,7 +20,7 @@ class Config {
     if (!mainWindow || mainWindow.isDestroyed()) return;
     mainWindow.webContents.send("config", {
       firstLaunch: this.firstLaunch,
-      customFrame: this.customFrame,
+      customFrame: usesCustomFrame(process.platform, this.customFrame),
       minimiseToTray: this.minimiseToTray,
       startMinimisedToTray: this.startMinimisedToTray,
       spellchecker: this.spellchecker,

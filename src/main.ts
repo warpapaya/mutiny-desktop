@@ -8,6 +8,12 @@ import { initBadges } from "./native/badges";
 import { config } from "./native/config";
 import { initControlServer } from "./native/controlServer";
 import { initDiscordRpc } from "./native/discordRpc";
+import {
+  createDisplayMediaRequestHandler,
+  displayMediaHandlerOptions,
+  openScreenSettingsIfRequested,
+  screenPermissionGuidance,
+} from "./native/displayMedia";
 import { showScreenPicker } from "./native/screenPicker";
 import {
   ProtocolUrlQueue,
@@ -103,38 +109,24 @@ if (acquiredLock) {
       return allowed.includes(permission);
     });
 
-    // Handle screen sharing requests with a visual picker
-    // On Windows, use the OS native screen picker when available (added in Win10 22H2+).
-    // This bypasses our custom picker entirely on Windows, which avoids sandbox/data-URL
-    // IPC issues in the custom picker on Windows Chromium.
-    session.defaultSession.setDisplayMediaRequestHandler(async (_request, callback) => {
-      console.log('[mutiny] setDisplayMediaRequestHandler triggered');
-      try {
-        const selected = await showScreenPicker();
-        console.log('[mutiny] Screen picker result:', selected ? selected.id : 'cancelled');
-        if (selected) {
-          callback({ video: selected });
-        } else {
-          callback({});
-        }
-      } catch (err) {
-        console.error('[mutiny] Error in screen picker:', err);
-        callback({});
-      }
-    }, {
-      // useSystemPicker: let Windows use its native OS screen picker (Win10 22H2+ / Win11)
-      // When the system picker is used, the handler above is NOT called — the OS handles it.
-      // Falls back to our custom picker on older Windows or non-Windows platforms.
-      useSystemPicker: process.platform === 'win32',
-    });
-
-    // Request microphone access on macOS
-    if (process.platform === "darwin") {
-      systemPreferences.askForMediaAccess("microphone");
-      systemPreferences.askForMediaAccess("camera");
-      // Also request screen recording permission on macOS
-      systemPreferences.getMediaAccessStatus("screen");
-    }
+    // Prefer the native picker on supported macOS versions. Electron falls
+    // back to this handler when the native picker is unavailable.
+    session.defaultSession.setDisplayMediaRequestHandler(
+      createDisplayMediaRequestHandler({
+        platform: process.platform,
+        getScreenAccessStatus: () =>
+          systemPreferences.getMediaAccessStatus("screen"),
+        pickSource: showScreenPicker,
+        showPermissionGuidance: async (status) => {
+          const result = await dialog.showMessageBox(
+            mainWindow,
+            screenPermissionGuidance(status),
+          );
+          await openScreenSettingsIfRequested(status, result.response, shell.openExternal);
+        },
+      }),
+      displayMediaHandlerOptions(process.platform),
+    );
 
     // Apply the one-time autostart default before creating the first window.
     try {

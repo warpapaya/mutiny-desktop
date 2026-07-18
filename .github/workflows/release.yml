@@ -74,6 +74,7 @@ jobs:
         run: pnpm run make
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
+          PLATFORM: ${{ matrix.platform }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -116,7 +117,8 @@ jobs:
           # These names are referenced by mutinyapp.gg landing page
           for f in release/Mutiny-darwin-arm64-*.zip; do [ -f "$f" ] && cp "$f" release/Mutiny-darwin-arm64.zip; done
           for f in release/Mutiny-win32-x64-*.zip; do [ -f "$f" ] && cp "$f" release/Mutiny-win32-x64.zip; done
-          for f in release/mutiny-desktop-setup.exe; do [ -f "$f" ] && cp "$f" release/Mutiny-setup.exe; done
+          test -f release/Mutiny-darwin-arm64.zip
+          test -f release/Mutiny-Setup.exe
           (cd release && sha256sum ./* > SHA256SUMS.txt)
           ls -la release/
 

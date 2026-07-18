@@ -8,6 +8,9 @@
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
+    "package:mac:dev": "MUTINY_MACOS_SIGNING_MODE=dev-ad-hoc electron-forge package --platform=darwin --arch=arm64",
+    "package:mac:release": "MUTINY_MACOS_SIGNING_MODE=release-developer-id MUTINY_DEVELOPER_ID_TEAM=VF5SMXSV89 electron-forge package --platform=darwin --arch=arm64",
+    "notarize:mac": "node scripts/macos-notarize.mjs",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
